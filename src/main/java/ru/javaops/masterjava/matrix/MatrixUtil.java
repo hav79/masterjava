@@ -1,12 +1,8 @@
 package ru.javaops.masterjava.matrix;
 
-import java.util.List;
 import java.util.Random;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * gkislin
@@ -19,29 +15,6 @@ public class MatrixUtil {
         final int matrixSize = matrixA.length;
         final int[][] matrixC = new int[matrixSize][matrixSize];
 
-        List<Callable<Void>> tasks = IntStream.range(0, matrixSize)
-                .mapToObj(i -> new Callable<Void>() {
-                    private final int[] column = new int[matrixSize];
-
-                    @Override
-                    public Void call() {
-                        for (int k = 0; k < matrixSize; k++) {
-                            column[k] = matrixB[k][i];
-                        }
-                        for (int j = 0; j < matrixSize; j++) {
-                            int[] row = matrixA[j];
-                            int sum = 0;
-                            for (int k = 0; k < matrixSize; k++) {
-                                sum += column[k] * row[k];
-                            }
-                            matrixC[j][i] = sum;
-                        }
-                        return null;
-                    }
-                })
-                .collect(Collectors.toList());
-        executor.invokeAll(tasks);
-
         return matrixC;
     }
 
@@ -50,18 +23,20 @@ public class MatrixUtil {
         final int matrixSize = matrixA.length;
         final int[][] matrixC = new int[matrixSize][matrixSize];
 
-        int[] column = new int[matrixSize];
+        int [][] matrixT = new int[matrixSize][matrixSize];
         for (int i = 0; i < matrixSize; i++) {
-            for (int k = 0; k < matrixSize; k++) {
-                column[k] = matrixB[k][i];
-            }
             for (int j = 0; j < matrixSize; j++) {
-                int[] row = matrixA[j];
+                matrixT[j][i] = matrixB[i][j];
+            }
+        }
+
+        for (int i = 0; i < matrixSize; i++) {
+            for (int j = 0; j < matrixSize; j++) {
                 int sum = 0;
                 for (int k = 0; k < matrixSize; k++) {
-                    sum += column[k] * row[k];
+                    sum += matrixA[i][k] * matrixT[k][j];
                 }
-                matrixC[j][i] = sum;
+                matrixC[i][j] = sum;
             }
         }
         return matrixC;
